@@ -1,13 +1,12 @@
 
-
-def detCalc(mat):
+def determinantCalc(mat):
 
     if len(mat) == 2: 
         ans =  mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
         return ans
             
     minor = [ [0 for i in range(len(mat)-1) ] for j in range(len(mat) - 1)]
-    det = 0
+    determinant = 0
 
     for k in range(len(mat)):  
         i, j = 0, 0
@@ -16,40 +15,66 @@ def detCalc(mat):
                 minor[j] = mat[i][1:]
                 j += 1
             i += 1
-        det +=  ((-1) ** k) * mat[k][0] * detCalc(minor)
-    return det
+        determinant +=  ((-1) ** k) * mat[k][0] * determinantCalc(minor)
+    return determinant
 
-
-def elementary(mat, tag):
+def elementaryDelete(mat, tag):
 
     i, j = tag
     ans = mat(len(mat), 1)
     ans[i][j] = -1 * (mat[i][j] / mat[j][j])
     return ans
 
+def elementarySwitchRows(mat, tag):
+    mat[tag[0]], mat[tag[1]] = mat[tag[1]], mat[tag[0]]
+
+def elementaryMulRow(mat, index, scalar):
+    mat[index] = [scalar * j for j in mat[index]]
+
+def pivoting(mat, index):
+
+    size = len(math)
+    max = mat[coloumn][coloumn]
+    maxIndex = index
+
+    for i in range(index + 1, size):
+        if mat[i][index] > max:
+            maxIndex = i
+    mat[index][index], mat[maxIndex][index] = mat[maxIndex][index], mat[index][index]
+            
+def matrixMul(A, B):
+    size = len(A)
+    ans = [ [0 for i in range(size)] for j in range(size) ]
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+                ans[i][j] += A[i][k] * B[k][j]
+    return ans
+
+
 
 def inverse(mat):
 
-    if detCalc(mat) == 0:
-        print("No inverse!")
-        return None
+    size = len(mat)
+    temp = mat
+    ans = [[ int(i == j) for j in range(size)] for i in range(size) ]
 
-    temp = mat# Copy of self matrix
-    ans = (len(self), 1)  # unit matrix
 
     # below diagonal
-    for j in range(0, self.size - 1):
-        for i in range(j + 1, self.size):
-            e = temp.elementary([i, j])
-            temp = e * temp
-            ans = e * ans
+    for j in range(0, size - 1):
+        temp = pivoting(temp)
+        for i in range(j + 1, size):
+            e = elementaryDelete(temp, [i,j])
+            temp = matrixMul(e,temp)
+            ans = matrixMul(e,ans)
 
      # above diagnol
-    for j in range(self.size - 1, 0, -1):
+    for j in range(size - 1, 0, -1):
+        temp = pivoting(temp)
         for i in range(j - 1, -1, -1):
-            e = temp.elementary([i, j])
-            temp = e * temp
-            ans = e * ans
+            e = elementaryDelete(temp, [i,j])
+            temp = matrixMul(e,temp)
+            ans = matrixMul(e,ans)
 
      # final step
     for i in range(len(ans)):
