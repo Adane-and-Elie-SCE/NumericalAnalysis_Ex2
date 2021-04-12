@@ -1,13 +1,15 @@
-def determinant_calc(mat):
+#Adane Adgo 315721969
+#Elie Bracha 204795900
 
-    if len(mat) == 2: 
+def determinant_calc(mat):
+    if len(mat) == 2:
         ans = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
         return ans
-            
-    minor = [[0 for i in range(len(mat)-1)] for j in range(len(mat) - 1)]
+
+    minor = [[0 for i in range(len(mat) - 1)] for j in range(len(mat) - 1)]
     determinant = 0
 
-    for k in range(len(mat)):  
+    for k in range(len(mat)):
         i, j = 0, 0
         while i < len(mat):
             if i != k:
@@ -26,9 +28,9 @@ def elementary_delete(mat, tag):
 
 
 def elementary_switch_rows(mat, tag):
-    e = [[int(i == j) for j in range(len(mat))] for i in range(len(mat))]
-    e[tag[0]], e[tag[1]] = e[tag[1]], e[tag[0]]
-    return e
+    ans = [[int(i == j) for j in range(len(mat))] for i in range(len(mat))]
+    ans[tag[0]], ans[tag[1]] = ans[tag[1]], ans[tag[0]]
+    return ans
 
 
 def elementary_mul_row(mat, index, scalar):
@@ -38,7 +40,6 @@ def elementary_mul_row(mat, index, scalar):
 
 
 def matrix_pivoting(mat, index):
-
     size = len(mat)
     max_value = mat[index][index]
     max_index = index
@@ -47,12 +48,12 @@ def matrix_pivoting(mat, index):
         if mat[i][index] > max_value:
             max_value = mat[i][index]
             max_index = i
-            
+
     return matrix_mul(elementary_switch_rows(mat, [index, max_index]), mat)
 
 
 def fix_approximation(mat):
-    epsilon = 2 ** (-30)
+    epsilon = 2 ** (-26)
     for i in range(len(mat)):
         for j in range(len(mat)):
             if abs(mat[i][j]) < epsilon:
@@ -67,7 +68,7 @@ def matrix_mul(a, b):
         for j in range(size):
             for k in range(size):
                 ans[i][j] += a[i][k] * b[k][j]
-    return ans
+    return fix_approximation(ans)
 
 
 def matrix_vector_mul(mat, b):
@@ -76,7 +77,7 @@ def matrix_vector_mul(mat, b):
 
     for i in range(size):
         for j in range(size):
-            ans[i] += mat[i][j]*b[j]
+            ans[i] += mat[i][j] * b[j]
     return ans
 
 
@@ -93,10 +94,12 @@ def print_vector(v):
 
 
 def inverse_by_gauss(mat):
+    if not determinant_calc(mat):
+        print('no inverse')
 
     size = len(mat)
     temp = mat
-    ans = [[int(i == j) for j in range(size)] for i in range(size) ]
+    ans = [[int(i == j) for j in range(size)] for i in range(size)]
 
     # below diagonal
     for j in range(0, size - 1):
@@ -122,34 +125,45 @@ def inverse_by_gauss(mat):
     return ans
 
 
-def inverse_by_lu(mat):
+def lu_decomposition(mat):
     size = len(mat)
     u = mat
     l = [[int(i == j) for j in range(size)] for i in range(size)]
 
     # below diagonal
-    for j in range(0, size - 1):
-        u = matrix_pivoting(u,j)
+    for j in range(0, size):
         for i in range(j + 1, size):
             e = elementary_delete(u, [i, j])
             u = matrix_mul(e, u)
-            l = matrix_mul(inverse_by_gauss(e), l)
-    return matrix_mul(l, u)
+            e[i][j] = -1 * e[i][j]
+            l = matrix_mul(l, e)
+
+    print("Triangle Matrix L:")
+    print_matrix(l)
+    print("Triangle Matrix U:")
+    print_matrix(u)
 
 
+def driver(mat, v = None):
+    if len(mat) < 4:
+        print('Example 1 Gauss Elimination: \n')
+        print("Matrix A:")
+        print_matrix(mat)
+        print("Vector b:")
+        print_vector(v)
+        print()
+        print("X = A^(-1) * b:")
+        print_vector(matrix_vector_mul(inverse_by_gauss(mat), b))
+    elif len(mat) >= 4:
+        print('\nExample 2 LU decomposition: \n')
+        print("Matrix C:")
+        print_matrix(mat)
+        lu_decomposition(mat)
 
 
+A = [[-1.41, 2, 0], [0, 2, -1.41], [1, -1.41, 1]]
+b = [1, 1, 1]
+C = [[3, -7, -2, 2], [-3, 5, 1, 0], [6, -4, 0, -5], [-9, 5, -5, 12]]
 
-A = [[-1.41, 2, 0], [1, -1.41, 1], [0, 2, -1.41]]
-print_matrix(inverse_by_lu(A))
-
-
-
-
-
-
-
-
-
-
-
+driver(A, b)
+driver(C)
