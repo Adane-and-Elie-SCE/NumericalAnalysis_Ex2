@@ -32,7 +32,8 @@ def elementary_switch_rows(mat, tag):
 
 
 def elementary_mul_row(mat, index, scalar):
-    mat[index] = [scalar * j for j in mat[index]]
+    e = [[int(i == j) for j in range(len(mat))] for i in range(len(mat))]
+    mat[index][index] = scalar
     return mat
 
 
@@ -50,6 +51,15 @@ def matrix_pivoting(mat, index):
     return matrix_mul(elementary_switch_rows(mat, [index, max_index]), mat)
 
 
+def fix_approximation(mat):
+    epsilon = 2 ** (-30)
+    for i in range(len(mat)):
+        for j in range(len(mat)):
+            if abs(mat[i][j]) < epsilon:
+                mat[i][j] = 0
+    return mat
+
+
 def matrix_mul(a, b):
     size = len(a)
     ans = [[0 for i in range(size)] for j in range(size)]
@@ -60,13 +70,29 @@ def matrix_mul(a, b):
     return ans
 
 
+def matrix_vector_mul(mat, b):
+    size = len(mat)
+    ans = [0 for i in range(size)]
+
+    for i in range(size):
+        for j in range(size):
+            ans[i] += mat[i][j]*b[j]
+    return ans
+
+
 def print_matrix(mat):
     for row in mat:
         print(row)
     print()
 
 
-def inverse(mat):
+def print_vector(v):
+    size = len(v)
+    for i in range(size):
+        print('[' + str(v[i]) + ']')
+
+
+def inverse_by_gauss(mat):
 
     size = len(mat)
     temp = mat
@@ -74,30 +100,33 @@ def inverse(mat):
 
     # below diagonal
     for j in range(0, size - 1):
-        temp = matrix_pivoting(temp, j)
+
         for i in range(j + 1, size):
             e = elementary_delete(temp, [i, j])
             temp = matrix_mul(e, temp)
             ans = matrix_mul(e, ans)
 
     # above diagonal
-    for j in range(size - 1, 0, -1):
-        temp = matrix_pivoting(temp, j)
+    for j in range(size - 1, -1, -1):
+
         for i in range(j - 1, -1, -1):
             e = elementary_delete(temp, [i, j])
             temp = matrix_mul(e, temp)
             ans = matrix_mul(e, ans)
 
-        # final step
-        for i in range(len(temp)):
-            temp = elementary_mul_row(temp, i, 1/temp[i][i])
-            ans = elementary_mul_row(ans, i, 1 / temp[i][i])
-        return ans
+    # final step
+    for i in range(size):
+        for j in range(size):
+            ans[i][j] /= temp[i][i]
+
+    return ans
+
+def inverse_by_lu(mat):
 
 
-A = [[5, 2, 1, 4, 6], [9, 4, 2, 5, 2], [11, 5, 7, 3, 9], [5, 6, 6, 7, 2], [7, 5, 9, 3, 3]]
-print_matrix(inverse(A))
 
+b = [1, 1, 1]
+A = [[-1.41, 2, 0], [1, -1.41, 1], [0, 2, -1.41]]
 
 
 
