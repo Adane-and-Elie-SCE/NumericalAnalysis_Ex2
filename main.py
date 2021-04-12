@@ -121,12 +121,27 @@ def inverse_by_gauss(mat):
 
     return ans
 
+
 def inverse_by_lu(mat):
+    size = len(mat)
+    u = mat
+    l = [[int(i == j) for j in range(size)] for i in range(size)]
+
+    # below diagonal
+    for j in range(0, size - 1):
+        u = matrix_pivoting(u,j)
+        for i in range(j + 1, size):
+            e = elementary_delete(u, [i, j])
+            u = matrix_mul(e, u)
+            l = matrix_mul(inverse_by_gauss(e), l)
+    return matrix_mul(l, u)
 
 
 
-b = [1, 1, 1]
+
+
 A = [[-1.41, 2, 0], [1, -1.41, 1], [0, 2, -1.41]]
+print_matrix(inverse_by_lu(A))
 
 
 
