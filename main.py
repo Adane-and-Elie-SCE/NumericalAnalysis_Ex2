@@ -1,6 +1,8 @@
 #Adane Adgo 315721969
 #Elie Bracha 204795900
 
+# github: https://github.com/Adane-and-Elie-SCE/NumericalAnalysis_Ex2.git
+
 def determinant_calc(mat):
     if len(mat) == 2:
         ans = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
